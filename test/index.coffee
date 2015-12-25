@@ -1,2 +1,4 @@
 describe "Tweet stream", ->
-  it "is cool", -> yes
+  describe "integration suit",  require './integration'
+  describe "overal experience", ->
+    it "is cool", -> yes
