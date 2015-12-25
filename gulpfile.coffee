@@ -1,39 +1,23 @@
 gulp          = require 'gulp'
-del           = require 'del'
-coffee        = require 'gulp-coffee'
-sourcemaps    = require 'gulp-sourcemaps'
-cached        = require 'gulp-cached'
-mocha         = require 'gulp-mocha'
 { fork }      = require 'child_process'
 debounce      = require 'lodash.debounce'
 through       = require 'through2'
 
+# Use common tasks
+tasks         = require './gulpfile.d'
+
+tasks
+  clean   : source: 'build'
+  coffee  : source: 'src/**/*.coffee',  destination: 'build'
+  test    : source: 'test/index.coffee'
+
 # Destructre and DRY:
 {
-  src
-  dest
   parallel
   series
   task
   watch
 } = gulp
-
-task 'clean', ->
-  del 'build/'
-
-task 'coffee', ->
-  gulp
-    .src 'src/**/*.coffee'
-    .pipe cached 'coffee'
-    .pipe sourcemaps.init()
-    .pipe coffee()
-    .pipe sourcemaps.write '.'
-    .pipe dest 'build/'
-
-task 'test', ->
-  gulp
-    .src 'test/index.coffee'
-    .pipe mocha reporter: 'spec', require: ['source-map-support/register']
 
 task 'build', series [
   'clean'
@@ -75,11 +59,14 @@ task 'watch', ->
     'default.cson'
     'config.cson'
     'package.json'
-  ], debounce (series ['test', 'serve']), 500
+  ], debounce (series [
+    'test'
+    # 'serve'
+  ]), 500
 
 task 'develop', series [
   (done) -> process.env.NODE_ENV = 'development'; do done
   'build'
-  'serve'
+  # 'serve'
   'watch'
 ]
